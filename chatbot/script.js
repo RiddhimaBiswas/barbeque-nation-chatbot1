@@ -7,11 +7,11 @@ async function sendMessage() {
     chatContainer.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
     
     // Call conversational flow API
-    const response = await fetch("https://barbeque-nation-api.onrender.com/conversational-flow", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_input: userMessage, current_state: "greeting" })
-    });
+    const response = await fetch("https://barbeque-nation-chatbot1-1.onrender.com", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ user_input: userMessage, current_state: "greeting" })
+});
     const data = await response.json();
     
     // Display bot response
