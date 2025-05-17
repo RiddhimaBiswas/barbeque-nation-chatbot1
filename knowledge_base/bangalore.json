@@ -1,0 +1,22 @@
+{
+  "city": "Bangalore",
+  "faqs": [
+    {
+      "question": "What are the operating hours in Bangalore?",
+      "answer": "Our Bangalore branches are open from 11 AM to 10 PM daily."
+    },
+    {
+      "question": "What is the menu in Bangalore?",
+      "answer": "Our Bangalore menu includes South Indian, North Indian, and BBQ specialties. Popular items include Chicken Biryani, BBQ Prawns, and Dal Makhani."
+    },
+    {
+      "question": "Do you offer vegetarian options in Bangalore?",
+      "answer": "Yes, we have a wide range of vegetarian options including Paneer Tikka, Veg Biryani, and more."
+    }
+  ],
+  "booking_info": {
+    "max_guests": 40,
+    "available_slots": ["11:00 AM", "12:00 PM", "6:00 PM", "7:00 PM"],
+    "contact": "+91-987-654-3210"
+  }
+}
