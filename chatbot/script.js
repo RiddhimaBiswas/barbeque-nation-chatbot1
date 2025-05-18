@@ -10,9 +10,26 @@ document.addEventListener("DOMContentLoaded", () => {
     function appendMessage(sender, message) {
         const messageDiv = document.createElement("div");
         messageDiv.className = `message ${sender}-message`;
-        messageDiv.textContent = message;
-        chatWindow.appendChild(messageDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+        
+        if (sender === "bot") {
+            // Add typing animation for bot messages
+            const typingSpan = document.createElement("span");
+            typingSpan.className = "typing";
+            typingSpan.textContent = "Typing...";
+            messageDiv.appendChild(typingSpan);
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            setTimeout(() => {
+                messageDiv.removeChild(typingSpan);
+                messageDiv.textContent = message;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, 1000); // Simulate typing delay
+        } else {
+            messageDiv.textContent = message;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
     }
 
     async function sendMessage(userMessage) {
@@ -32,6 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             });
 
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
             const data = await response.json();
             if (data.error) {
                 appendMessage("bot", `Error: ${data.error}`);
@@ -42,21 +63,21 @@ document.addEventListener("DOMContentLoaded", () => {
             entities = data.entities || {};
             appendMessage("bot", data.response);
         } catch (error) {
-            appendMessage("bot", "Sorry, something went wrong. Please try again.");
+            appendMessage("bot", "Sorry, I'm having trouble connecting. Please try again later.");
             console.error("Error:", error);
         }
     }
 
     // Handle text input and send button
     sendButton.addEventListener("click", (e) => {
-        e.preventDefault(); // Prevent form submission
+        e.preventDefault();
         const userMessage = userInput.value.trim();
         if (userMessage) sendMessage(userMessage);
     });
 
     userInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
-            e.preventDefault(); // Prevent form submission
+            e.preventDefault();
             const userMessage = userInput.value.trim();
             if (userMessage) sendMessage(userMessage);
         }

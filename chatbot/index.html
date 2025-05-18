@@ -6,23 +6,28 @@
   <title>Barbeque Nation Chatbot</title>
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
   <div id="chat-container">
+    <div id="chat-header">
+      <img src="https://www.barbequenation.com/images/logo.png" alt="Barbeque Nation Logo" id="logo" />
+      <h2>Barbeque Nation Chatbot</h2>
+    </div>
     <div id="chat-window"></div>
 
     <div id="options">
-      <button class="option-btn" data-msg="Show me the menu">Menu</button>
-      <button class="option-btn" data-msg="I want to book a table">Book a Table</button>
-      <button class="option-btn" data-msg="I want to update my booking">Update Booking</button>
-      <button class="option-btn" data-msg="I want to cancel my booking">Cancel Booking</button>
-      <button class="option-btn" data-msg="What are your timings?">Timings</button>
-      <button class="option-btn" data-msg="Hello">Hello</button>
+      <button class="option-btn" data-msg="Show me the menu"><i class="fas fa-utensils"></i> Menu</button>
+      <button class="option-btn" data-msg="I want to book a table"><i class="fas fa-calendar-check"></i> Book a Table</button>
+      <button class="option-btn" data-msg="I want to update my booking"><i class="fas fa-edit"></i> Update Booking</button>
+      <button class="option-btn" data-msg="I want to cancel my booking"><i class="fas fa-times-circle"></i> Cancel Booking</button>
+      <button class="option-btn" data-msg="What are your timings?"><i class="fas fa-clock"></i> Timings</button>
+      <button class="option-btn" data-msg="Hello"><i class="fas fa-hand-wave"></i> Hello</button>
     </div>
 
     <form id="input-area">
       <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off" />
-      <button type="submit" id="send-btn">Send</button>
+      <button type="submit" id="send-btn"><i class="fas fa-paper-plane"></i> Send</button>
     </form>
   </div>
 
