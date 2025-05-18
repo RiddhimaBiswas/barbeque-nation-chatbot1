@@ -7,12 +7,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentState = "greeting";
     let entities = {};
 
-    function appendMessage(sender, message) {
+    function appendMessage(sender, data) {
         const messageDiv = document.createElement("div");
         messageDiv.className = `message ${sender}-message`;
-        
+
         if (sender === "bot") {
-            // Add typing animation for bot messages
             const typingSpan = document.createElement("span");
             typingSpan.className = "typing";
             typingSpan.textContent = "Typing...";
@@ -22,11 +21,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
             setTimeout(() => {
                 messageDiv.removeChild(typingSpan);
-                messageDiv.textContent = message;
+
+                if (data.type === "menu") {
+                    // Render structured menu
+                    const menu = data.content;
+                    const menuContainer = document.createElement("div");
+                    menuContainer.className = "menu-container";
+
+                    for (const [category, items] of Object.entries(menu)) {
+                        const categoryDiv = document.createElement("div");
+                        categoryDiv.className = "menu-category";
+
+                        const categoryTitle = document.createElement("h3");
+                        categoryTitle.textContent = category;
+                        categoryDiv.appendChild(categoryTitle);
+
+                        const itemList = document.createElement("ul");
+                        items.forEach(item => {
+                            const listItem = document.createElement("li");
+                            listItem.textContent = item;
+                            itemList.appendChild(listItem);
+                        });
+                        categoryDiv.appendChild(itemList);
+                        menuContainer.appendChild(categoryDiv);
+                    }
+
+                    const note = document.createElement("p");
+                    note.className = "menu-note";
+                    note.textContent = "Please note that the menu may vary by location. For the most accurate information, contact your local Barbeque Nation restaurant.";
+                    menuContainer.appendChild(note);
+
+                    messageDiv.appendChild(menuContainer);
+                } else {
+                    // Render plain text
+                    messageDiv.textContent = data.content;
+                }
+
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-            }, 1000); // Simulate typing delay
+            }, 1000);
         } else {
-            messageDiv.textContent = message;
+            messageDiv.textContent = data;
             chatWindow.appendChild(messageDiv);
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
@@ -55,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
             if (data.error) {
-                appendMessage("bot", `Error: ${data.error}`);
+                appendMessage("bot", { type: "text", content: `Error: ${data.error}` });
                 return;
             }
 
@@ -63,12 +97,11 @@ document.addEventListener("DOMContentLoaded", () => {
             entities = data.entities || {};
             appendMessage("bot", data.response);
         } catch (error) {
-            appendMessage("bot", "Sorry, I'm having trouble connecting. Please try again later.");
+            appendMessage("bot", { type: "text", content: "Sorry, I'm having trouble connecting. Please try again later." });
             console.error("Error:", error);
         }
     }
 
-    // Handle text input and send button
     sendButton.addEventListener("click", (e) => {
         e.preventDefault();
         const userMessage = userInput.value.trim();
@@ -83,7 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Handle option buttons
     optionButtons.forEach(button => {
         button.addEventListener("click", () => {
             const userMessage = button.getAttribute("data-msg");
@@ -91,6 +123,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Initialize conversation
-    appendMessage("bot", "Hello! Welcome to Barbeque Nation. How can I assist you today?");
+    appendMessage("bot", { type: "text", content: "Hello! Welcome to Barbeque Nation. How can I assist you today?" });
 });

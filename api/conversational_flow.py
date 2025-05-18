@@ -59,6 +59,7 @@ async def handle_conversation(request: Request):
         prompt = state_config["prompt"]
         ai_reply = None
         next_state = current_state
+        response_data = {"type": "text", "content": ""}
 
         # Handle specific intents from option buttons
         user_input_lower = user_input.lower()
@@ -70,12 +71,16 @@ async def handle_conversation(request: Request):
                         json={"city": entities.get("city", "bangalore"), "question": "menu"}
                     )
                     kb_response.raise_for_status()
-                    information = kb_response.json().get("answer", "No menu information available.")
+                    menu_data = kb_response.json().get("answer", {})
+                    if isinstance(menu_data, dict) and "menu" in menu_data:
+                        # Return structured menu data
+                        response_data = {"type": "menu", "content": menu_data["menu"]}
+                    else:
+                        response_data = {"type": "text", "content": "Sorry, I couldn't retrieve the menu at this time."}
                 except Exception as e:
                     print(f"Knowledge Base API error: {e}")
-                    information = "Sorry, I couldn't retrieve the menu at this time."
-            entities["information"] = information
-            prompt = f"Here is the menu information: {information}"
+                    response_data = {"type": "text", "content": "Sorry, I couldn't retrieve the menu at this time."}
+            entities["information"] = response_data["content"]
             next_state = "inform"
 
         elif "timings" in user_input_lower:
@@ -84,6 +89,7 @@ async def handle_conversation(request: Request):
             if not city or not area:
                 prompt = "I need to know which city and area you're interested in to provide the timings. Could you please tell me?"
                 next_state = "collect_city"
+                response_data = {"type": "text", "content": prompt}
             else:
                 async with httpx.AsyncClient(timeout=10) as client:
                     try:
@@ -98,6 +104,7 @@ async def handle_conversation(request: Request):
                         information = "Sorry, I couldn't retrieve the timings at this time."
                 entities["information"] = information
                 prompt = f"Here are the timings: {information}"
+                response_data = {"type": "text", "content": prompt}
                 next_state = "inform"
 
         # Handle city collection and verification
@@ -123,8 +130,10 @@ async def handle_conversation(request: Request):
                 else:
                     prompt = f"You are looking for information about {city.title()}. Could you please specify the area?"
                     next_state = "collect_city"
+                response_data = {"type": "text", "content": prompt}
             else:
                 prompt = "I'm sorry, we do not have any outlets in the area you mentioned. Would you like to know about any other area?"
+                response_data = {"type": "text", "content": prompt}
                 next_state = "collect_city"
 
         # Handle informing the user
@@ -134,6 +143,7 @@ async def handle_conversation(request: Request):
             if not city or not area:
                 prompt = "I need more information to proceed. Could you please tell me which city and area you're interested in?"
                 next_state = "collect_city"
+                response_data = {"type": "text", "content": prompt}
             else:
                 async with httpx.AsyncClient(timeout=10) as client:
                     try:
@@ -148,41 +158,43 @@ async def handle_conversation(request: Request):
                         information = "Sorry, I couldn't retrieve the information at this time."
                 entities["information"] = information
                 prompt = state_config["prompt"].format(information=information)
+                response_data = {"type": "text", "content": prompt}
                 next_state = "inform"
 
-        # Format prompt with entities if needed
-        try:
-            prompt = prompt.format(**{k: entities.get(k, "") for k in state_config.get("entities", [])})
-        except Exception as e:
-            print(f"Prompt formatting error: {e}")
-
-        # Call Retell AI API
-        headers = {
-            "Authorization": f"Bearer {RETELL_AI_API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "http://localhost:8001",
-            "X-Title": "Chatbot Flow"
-        }
-
-        async with httpx.AsyncClient(timeout=10) as client:
+        # Default case: Use Retell AI for other responses
+        if response_data["type"] == "text" and not ai_reply:
             try:
-                response = await client.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    headers=headers,
-                    json={
-                        "model": "mistralai/mistral-7b-instruct",
-                        "messages": [
-                            {"role": "system", "content": "You are a helpful assistant for Barbeque Nation. Provide information politely and avoid using any prohibited words or triggering external functions."},
-                            {"role": "user", "content": prompt + "\n\nUser: " + user_input}
-                        ]
-                    }
-                )
-                response.raise_for_status()
-                result = response.json()
-                ai_reply = result["choices"][0]["message"]["content"]
+                prompt = prompt.format(**{k: entities.get(k, "") for k in state_config.get("entities", [])})
             except Exception as e:
-                print(f"Retell AI API error: {e}")
-                ai_reply = f"(Mocked) Sorry, the AI service is unavailable. Your input was: '{user_input}'."
+                print(f"Prompt formatting error: {e}")
+
+            headers = {
+                "Authorization": f"Bearer {RETELL_AI_API_KEY}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": "http://localhost:8001",
+                "X-Title": "Chatbot Flow"
+            }
+
+            async with httpx.AsyncClient(timeout=10) as client:
+                try:
+                    response = await client.post(
+                        "https://openrouter.ai/api/v1/chat/completions",
+                        headers=headers,
+                        json={
+                            "model": "mistralai/mistral-7b-instruct",
+                            "messages": [
+                                {"role": "system", "content": "You are a helpful assistant for Barbeque Nation. Provide information politely and avoid using any prohibited words or triggering external functions."},
+                                {"role": "user", "content": prompt + "\n\nUser: " + user_input}
+                            ]
+                        }
+                    )
+                    response.raise_for_status()
+                    result = response.json()
+                    ai_reply = result["choices"][0]["message"]["content"]
+                    response_data["content"] = ai_reply
+                except Exception as e:
+                    print(f"Retell AI API error: {e}")
+                    response_data["content"] = f"(Mocked) Sorry, the AI service is unavailable. Your input was: '{user_input}'."
 
         # Determine next state based on transitions
         for transition in STATE_TRANSITIONS.get(current_state, []):
@@ -191,7 +203,7 @@ async def handle_conversation(request: Request):
                 break
 
         return {
-            "response": ai_reply,
+            "response": response_data,
             "next_state": next_state,
             "entities": entities
         }
