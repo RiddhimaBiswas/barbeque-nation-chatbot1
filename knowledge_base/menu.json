@@ -1,0 +1,25 @@
+{
+  "menu": {
+    "jain_food": "Yes, available with limited variety. Inform the outlet team upon arrival.",
+    "halal_food": "Yes, we serve Halal meat in all outlets with certificates available.",
+    "alcoholic_drinks": "Served as per ala carte menu, outside drinks not allowed.",
+    "ala_carte": "Available only for takeaway and delivery, not for dine-in (unlimited buffet).",
+    "customization": "Taste adjustments (spicy/less spicy) possible, additional dishes subject to availability.",
+    "standard_menu": "Menu is standard across all outlets.",
+    "seafood": {
+      "fish": "BASA (boneless)",
+      "prawns": "Medium-sized Zinga prawns",
+      "crab": "Not available"
+    },
+    "desserts": {
+      "ice_cream": ["Vanilla", "Strawberry"],
+      "kulfis": ["Strawberry", "Malai", "Chocolate", "Kesar Badam", "Paan", "Mango"]
+    },
+    "biryani": "Chicken biryani only, no mutton biryani.",
+    "breads": ["Kulcha", "Roti", "Naan"],
+    "pizza": "Not available",
+    "hukkah": "Not available",
+    "jataka_food": "Not available",
+    "mutton": "Goat mutton, served as Mutton Seekh Kebab for starters"
+  }
+}

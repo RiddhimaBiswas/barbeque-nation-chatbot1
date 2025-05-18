@@ -1,18 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbeque Nation Chatbot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Barbeque Nation Chatbot</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-4">Barbeque Nation Chatbot</h1>
-        <div id="chat-container" class="h-64 overflow-y-auto mb-4 p-4 bg-gray-50 rounded"></div>
-        <input id="user-input" type="text" class="w-full p-2 border rounded" placeholder="Type your message...">
-        <button onclick="sendMessage()" class="mt-2 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Send</button>
+<body>
+  <div id="chat-container">
+    <div id="chat-window"></div>
+
+    <div id="options">
+      <button class="option-btn" data-msg="Show me the menu">Menu</button>
+      <button class="option-btn" data-msg="I want to book a table">Book a Table</button>
+      <button class="option-btn" data-msg="I want to update my booking">Update Booking</button>
+      <button class="option-btn" data-msg="I want to cancel my booking">Cancel Booking</button>
+      <button class="option-btn" data-msg="What are your timings?">Timings</button>
+      <button class="option-btn" data-msg="Hello">Hello</button>
     </div>
-    <script src="script.js"></script>
+
+    <form id="input-area">
+      <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off" />
+      <button type="submit" id="send-btn">Send</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>

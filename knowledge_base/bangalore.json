@@ -1,22 +1,17 @@
 {
   "city": "Bangalore",
-  "faqs": [
+  "areas": [
     {
-      "question": "What are the operating hours in Bangalore?",
-      "answer": "Our Bangalore branches are open from 11 AM to 10 PM daily."
+      "name": "Indiranagar",
+      "summary": "Located at No.4005, HAL 2nd stage, 100 feet road, Indiranagar, Bangalore- 560038. Bar available, valet parking available."
     },
     {
-      "question": "What is the menu in Bangalore?",
-      "answer": "Our Bangalore menu includes South Indian, North Indian, and BBQ specialties. Popular items include Chicken Biryani, BBQ Prawns, and Dal Makhani."
+      "name": "JP Nagar",
+      "summary": "Located at 67, 3rd Floor, 6th B Main, Phase III, J P Nagar, Bengaluru, Karnataka 560078, India. Bar available, parking assistance available."
     },
     {
-      "question": "Do you offer vegetarian options in Bangalore?",
-      "answer": "Yes, we have a wide range of vegetarian options including Paneer Tikka, Veg Biryani, and more."
+      "name": "Electronic City",
+      "summary": "Located at 99, 14th Cross Road, Neeladri Nagar, Electronics City Phase 1, Electronic City, Bengaluru, Karnataka 560100, India. No bar, self/chargeable parking."
     }
-  ],
-  "booking_info": {
-    "max_guests": 40,
-    "available_slots": ["11:00 AM", "12:00 PM", "6:00 PM", "7:00 PM"],
-    "contact": "+91-987-654-3210"
-  }
+  ]
 }

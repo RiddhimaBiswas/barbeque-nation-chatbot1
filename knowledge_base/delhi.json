@@ -1,22 +1,13 @@
 {
   "city": "Delhi",
-  "faqs": [
+  "areas": [
     {
-      "question": "What are the operating hours in Delhi?",
-      "answer": "Our Delhi branches are open from 12 PM to 11 PM daily."
+      "name": "Janakpuri",
+      "summary": "Located at Unity One, 2nd Floor, Narang Colony, Chander Nagar, Janakpuri, New Delhi, Delhi 110058. Bar available, self/mall parking/chargeable."
     },
     {
-      "question": "What is the menu in Delhi?",
-      "answer": "Our Delhi menu includes North Indian, South Indian, and Continental dishes. Popular items include Butter Chicken, Paneer Tikka, and BBQ Platters."
-    },
-    {
-      "question": "Is there parking available in Delhi?",
-      "answer": "Yes, all our Delhi locations offer free parking for customers."
+      "name": "Vasant Kunj",
+      "summary": "Located at Plot No. 11, Local Shopping Center, Pyramid Building, Pocket 7, Sector C, Vasant Kunj, New Delhi, Delhi 110070. Bar available, parking assistance available."
     }
-  ],
-  "booking_info": {
-    "max_guests": 50,
-    "available_slots": ["12:00 PM", "1:00 PM", "7:00 PM", "8:00 PM"],
-    "contact": "+91-123-456-7890"
-  }
+  ]
 }

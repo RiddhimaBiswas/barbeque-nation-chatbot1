@@ -1,0 +1,71 @@
+{
+  "city": "Delhi",
+  "area": "Vasant Kunj",
+  "address": "Plot No. 11, Local Shopping Center, Pyramid Building, Pocket 7, Sector C, Vasant Kunj, New Delhi, Delhi 110070",
+  "contact_numbers": [],
+  "timings": {
+    "monday_to_friday": {
+      "lunch": {"opening": "12:00 PM", "last_entry": "04:00 PM", "closing": "05:00 PM"},
+      "dinner": {"opening": "06:00 PM", "last_entry": "11:00 PM", "closing": "12:00 AM"}
+    },
+    "saturday": {
+      "lunch": {"opening": "12:00 PM", "last_entry": "04:00 PM", "closing": "05:00 PM"},
+      "dinner": {"opening": "06:00 PM", "last_entry": "11:00 PM", "closing": "12:00 AM"}
+    },
+    "sunday": {
+      "lunch": {"opening": "12:00 PM", "last_entry": "04:00 PM", "closing": "05:00 PM"},
+      "dinner": {"opening": "06:00 PM", "last_entry": "11:00 PM", "closing": "12:00 AM"}
+    }
+  },
+  "availability": {
+    "bar": "Yes",
+    "valet_parking": "Parking Assistance",
+    "lift": "No",
+    "pdr": "No",
+    "pdr_capacity": "No",
+    "pdr_minimum_pax": "No",
+    "baby_chair": "No"
+  },
+  "special_instructions": "27th Oct stop dinner both slots due to bulk booking, suggest nearby location.",
+  "nearest_outlets": [],
+  "offers": {
+    "complimentary_drinks": "Lunch / Monday to Friday / 1 Round / Soft drink or Mocktail",
+    "food_festival": "No",
+    "early_bird": "No",
+    "kitty_party": "No",
+    "student": "No",
+    "buffet_5_plus_1": "No",
+    "army": "No",
+    "drinks": "No"
+  },
+  "reservation_instructions": {
+    "monday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "tuesday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "wednesday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "thursday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "friday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "saturday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "sunday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    }
+  }
+}

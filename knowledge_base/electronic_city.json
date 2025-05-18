@@ -1,0 +1,71 @@
+{
+  "city": "Bangalore",
+  "area": "Electronic City",
+  "address": "99, 14th Cross Road, Neeladri Nagar, Electronics City Phase 1, Electronic City, Bengaluru, Karnataka 560100, India",
+  "contact_numbers": ["7090757126", "7090757059"],
+  "timings": {
+    "monday_to_friday": {
+      "lunch": {"opening": "12:00 PM", "last_entry": "04:00 PM", "closing": "05:00 PM"},
+      "dinner": {"opening": "06:30 PM", "last_entry": "11:00 PM", "closing": "11:55 PM"}
+    },
+    "saturday": {
+      "lunch": {"opening": "12:00 PM", "last_entry": "04:00 PM", "closing": "05:00 PM"},
+      "dinner": {"opening": "06:30 PM", "last_entry": "11:00 PM", "closing": "11:55 PM"}
+    },
+    "sunday": {
+      "lunch": {"opening": "12:00 PM", "last_entry": "04:00 PM", "closing": "05:00 PM"},
+      "dinner": {"opening": "06:30 PM", "last_entry": "11:00 PM", "closing": "11:55 PM"}
+    }
+  },
+  "availability": {
+    "bar": "No",
+    "valet_parking": "Self / Chargeable",
+    "lift": "Yes",
+    "pdr": "No",
+    "pdr_capacity": "No",
+    "pdr_minimum_pax": "No",
+    "baby_chair": "Yes"
+  },
+  "special_instructions": "None",
+  "nearest_outlets": [],
+  "offers": {
+    "complimentary_drinks": "Lunch / Monday to Saturday / 1 Round / Soft drink or Mocktail",
+    "food_festival": "No",
+    "early_bird": "No",
+    "kitty_party": "No",
+    "student": "No",
+    "buffet_5_plus_1": "No",
+    "army": "No",
+    "drinks": "No"
+  },
+  "reservation_instructions": {
+    "monday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "tuesday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "wednesday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "thursday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "friday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "saturday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    },
+    "sunday": {
+      "2+1": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"},
+      "3_and_above": {"lunch_slot_1": "Flexible", "lunch_slot_2": "Take till last entry", "dinner_slot_1": "Flexible", "dinner_slot_2": "Take till last entry"}
+    }
+  }
+}
