@@ -22,9 +22,20 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(() => {
                 messageDiv.removeChild(typingSpan);
 
+                if (!data || !data.type) {
+                    messageDiv.textContent = "Sorry, I received an invalid response. Please try again.";
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                    return;
+                }
+
                 if (data.type === "menu") {
-                    // Render structured menu
                     const menu = data.content;
+                    if (!menu || typeof menu !== "object") {
+                        messageDiv.textContent = "Sorry, the menu data is invalid. Please try again.";
+                        chatWindow.scrollTop = chatWindow.scrollHeight;
+                        return;
+                    }
+
                     const menuContainer = document.createElement("div");
                     menuContainer.className = "menu-container";
 
@@ -37,11 +48,17 @@ document.addEventListener("DOMContentLoaded", () => {
                         categoryDiv.appendChild(categoryTitle);
 
                         const itemList = document.createElement("ul");
-                        items.forEach(item => {
+                        if (Array.isArray(items)) {
+                            items.forEach(item => {
+                                const listItem = document.createElement("li");
+                                listItem.textContent = item;
+                                itemList.appendChild(listItem);
+                            });
+                        } else {
                             const listItem = document.createElement("li");
-                            listItem.textContent = item;
+                            listItem.textContent = "No items available.";
                             itemList.appendChild(listItem);
-                        });
+                        }
                         categoryDiv.appendChild(itemList);
                         menuContainer.appendChild(categoryDiv);
                     }
@@ -53,8 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     messageDiv.appendChild(menuContainer);
                 } else {
-                    // Render plain text
-                    messageDiv.textContent = data.content;
+                    messageDiv.textContent = data.content || "Sorry, I received an empty response.";
                 }
 
                 chatWindow.scrollTop = chatWindow.scrollHeight;
