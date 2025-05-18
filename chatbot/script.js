@@ -7,63 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentState = "greeting";
     let entities = {};
 
-    function appendMessage(sender, data) {
+    function appendMessage(sender, message) {
         const messageDiv = document.createElement("div");
         messageDiv.className = `message ${sender}-message`;
-
-        if (sender === "bot") {
-            const typingSpan = document.createElement("span");
-            typingSpan.className = "typing";
-            typingSpan.textContent = "Typing...";
-            messageDiv.appendChild(typingSpan);
-            chatWindow.appendChild(messageDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-
-            setTimeout(() => {
-                messageDiv.removeChild(typingSpan);
-
-                if (data.type === "menu") {
-                    // Render structured menu
-                    const menu = data.content;
-                    const menuContainer = document.createElement("div");
-                    menuContainer.className = "menu-container";
-
-                    for (const [category, items] of Object.entries(menu)) {
-                        const categoryDiv = document.createElement("div");
-                        categoryDiv.className = "menu-category";
-
-                        const categoryTitle = document.createElement("h3");
-                        categoryTitle.textContent = category;
-                        categoryDiv.appendChild(categoryTitle);
-
-                        const itemList = document.createElement("ul");
-                        items.forEach(item => {
-                            const listItem = document.createElement("li");
-                            listItem.textContent = item;
-                            itemList.appendChild(listItem);
-                        });
-                        categoryDiv.appendChild(itemList);
-                        menuContainer.appendChild(categoryDiv);
-                    }
-
-                    const note = document.createElement("p");
-                    note.className = "menu-note";
-                    note.textContent = "Please note that the menu may vary by location. For the most accurate information, contact your local Barbeque Nation restaurant.";
-                    menuContainer.appendChild(note);
-
-                    messageDiv.appendChild(menuContainer);
-                } else {
-                    // Render plain text
-                    messageDiv.textContent = data.content;
-                }
-
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            }, 1000);
-        } else {
-            messageDiv.textContent = data;
-            chatWindow.appendChild(messageDiv);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
+        messageDiv.textContent = message;
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
     async function sendMessage(userMessage) {
@@ -83,13 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
             const data = await response.json();
             if (data.error) {
-                appendMessage("bot", { type: "text", content: `Error: ${data.error}` });
+                appendMessage("bot", `Error: ${data.error}`);
                 return;
             }
 
@@ -97,25 +42,27 @@ document.addEventListener("DOMContentLoaded", () => {
             entities = data.entities || {};
             appendMessage("bot", data.response);
         } catch (error) {
-            appendMessage("bot", { type: "text", content: "Sorry, I'm having trouble connecting. Please try again later." });
+            appendMessage("bot", "Sorry, something went wrong. Please try again.");
             console.error("Error:", error);
         }
     }
 
+    // Handle text input and send button
     sendButton.addEventListener("click", (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent form submission
         const userMessage = userInput.value.trim();
         if (userMessage) sendMessage(userMessage);
     });
 
     userInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") {
-            e.preventDefault();
+            e.preventDefault(); // Prevent form submission
             const userMessage = userInput.value.trim();
             if (userMessage) sendMessage(userMessage);
         }
     });
 
+    // Handle option buttons
     optionButtons.forEach(button => {
         button.addEventListener("click", () => {
             const userMessage = button.getAttribute("data-msg");
@@ -123,5 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    appendMessage("bot", { type: "text", content: "Hello! Welcome to Barbeque Nation. How can I assist you today?" });
+    // Initialize conversation
+    appendMessage("bot", "Hello! Welcome to Barbeque Nation. How can I assist you today?");
 });
