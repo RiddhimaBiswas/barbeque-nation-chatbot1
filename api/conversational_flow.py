@@ -1,59 +1,197 @@
 from fastapi import FastAPI, Request
-import requests
-from state_prompts import STATE_PROMPTS, STATE_TRANSITIONS
-from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 import os
+from dotenv import load_dotenv
+import httpx
 
-load_dotenv()  # Load environment variables from .env
+# Import state prompts and transitions
+from state_prompts import STATE_PROMPTS, STATE_TRANSITIONS
+
+# Load environment variables from .env
+load_dotenv()
 RETELL_AI_API_KEY = os.getenv("RETELL_AI_API_KEY")
 
 app = FastAPI()
 
+# CORS configuration
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://localhost:8001",
+    "https://barbeque-nation-chatbot.vercel.app",  # Add Vercel frontend URL
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Cities and areas available in the knowledge base (aligned with JSON files)
+AVAILABLE_CITIES = {
+    "delhi": ["Janakpuri", "Vasant Kunj"],
+    "bangalore": ["Indiranagar", "JP Nagar", "Electronic City"]
+}
+
+@app.get("/")
+def read_root():
+    return {"message": "Server is running!"}
+
 @app.post("/conversational-flow")
 async def handle_conversation(request: Request):
-    data = await request.json()
-    user_input = data.get("user_input")
-    current_state = data.get("current_state", "greeting")
-    entities = data.get("entities", {})
-    
-    state_config = STATE_PROMPTS.get(current_state)
-    prompt = state_config["prompt"].format(**entities)
-    
-    # Retell AI integration
-    headers = {
-        "Authorization": f"Bearer {RETELL_AI_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    retell_response = requests.post(
-        "https://beta.retellai.com/api/v1/converse",
-        json={"prompt": prompt, "user_input": user_input},
-        headers=headers
-    ).json()
-    
-    next_state = current_state
-    for transition in STATE_TRANSITIONS.get(current_state, []):
-        if evaluate_condition(transition["condition"], user_input, data):
-            next_state = transition["next_state"]
-            break
-    
-    return {
-        "response": retell_response.get("response"),
-        "next_state": next_state
-    }
+    try:
+        data = await request.json()
+        user_input = data.get("user_input", "")
+        current_state = data.get("current_state", "greeting")
+        entities = data.get("entities", {})
+
+        print(f"Received user_input: {user_input}, current_state: {current_state}, entities: {entities}")
+
+        # Retrieve prompt template for current state
+        state_config = STATE_PROMPTS.get(current_state)
+        if not state_config:
+            return {"error": f"Unknown state: {current_state}"}
+
+        # Initialize prompt and next state
+        prompt = state_config["prompt"]
+        ai_reply = None
+        next_state = current_state
+
+        # Handle city collection and verification
+        if current_state == "collect_city":
+            city = None
+            area = None
+            user_input_lower = user_input.lower()
+
+            # Check if user input matches a city or area
+            for c, areas in AVAILABLE_CITIES.items():
+                if c in user_input_lower:
+                    city = c
+                    break
+                for a in areas:
+                    if a.lower() in user_input_lower:
+                        city = c
+                        area = a
+                        break
+
+            if city:
+                entities["city"] = city
+                if area and area in [a.lower() for a in AVAILABLE_CITIES[city]]:
+                    entities["area"] = area.title()  # Store area in proper case (e.g., "Indiranagar")
+                    prompt = f"You are looking for information about {area}, {city.title()}. Is that correct?"
+                    next_state = "inform"
+                else:
+                    prompt = f"You are looking for information about {city.title()}. Could you please specify the area?"
+                    next_state = "collect_city"
+            else:
+                prompt = "I'm sorry, we do not have any outlets in the area you mentioned. Would you like to know about any other area?"
+                next_state = "collect_city"
+
+        # Handle informing the user
+        elif current_state == "inform":
+            city = entities.get("city")
+            area = entities.get("area")
+
+            if not city or not area:
+                prompt = "I need more information to proceed. Could you please tell me which city and area you're interested in?"
+                next_state = "collect_city"
+            else:
+                # Fetch information from knowledge base
+                async with httpx.AsyncClient(timeout=10) as client:
+                    try:
+                        kb_response = await client.post(
+                            "https://barbeque-nation-knowledge-base.onrender.com/knowledge-base/query",
+                            json={"city": city, "area": area, "question": "operating hours"}
+                        )
+                        kb_response.raise_for_status()
+                        information = kb_response.json().get("answer", "No information available.")
+                    except Exception as e:
+                        print(f"Knowledge Base API error: {e}")
+                        information = "Sorry, I couldn't retrieve the information at this time."
+
+                entities["information"] = information
+                prompt = state_config["prompt"].format(information=information)
+                next_state = "inform"  # Stay in inform state for further questions
+
+        # Format prompt with entities if needed
+        try:
+            prompt = prompt.format(**{k: entities.get(k, "") for k in state_config.get("entities", [])})
+        except Exception as e:
+            print(f"Prompt formatting error: {e}")
+
+        # Call Retell AI API
+        headers = {
+            "Authorization": f"Bearer {RETELL_AI_API_KEY}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "http://localhost:8001",
+            "X-Title": "Chatbot Flow"
+        }
+
+        async with httpx.AsyncClient(timeout=10) as client:
+            try:
+                response = await client.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers=headers,
+                    json={
+                        "model": "mistralai/mistral-7b-instruct",
+                        "messages": [
+                            {"role": "system", "content": "You are a helpful assistant for Barbeque Nation. Provide information politely and avoid using any prohibited words or triggering external functions."},
+                            {"role": "user", "content": prompt + "\n\nUser: " + user_input}
+                        ]
+                    }
+                )
+                response.raise_for_status()
+                result = response.json()
+                ai_reply = result["choices"][0]["message"]["content"]
+            except Exception as e:
+                print(f"Retell AI API error: {e}")
+                ai_reply = f"(Mocked) Sorry, the AI service is unavailable. Your input was: '{user_input}'."
+
+        # Determine next state based on transitions
+        for transition in STATE_TRANSITIONS.get(current_state, []):
+            if evaluate_condition(transition["condition"], user_input, data):
+                next_state = transition["next_state"]
+                break
+
+        return {
+            "response": ai_reply,
+            "next_state": next_state,
+            "entities": entities
+        }
+
+    except Exception as e:
+        return {"error": "Unexpected server error", "details": str(e)}
 
 def evaluate_condition(condition: str, user_input: str, data: dict) -> bool:
     if condition == "user_input is not empty":
-        return bool(user_input)
+        return bool(user_input.strip())
     if condition.startswith("intent == "):
-        intent = condition.split("==")[1].strip().strip("'")
-        if intent.lower() in user_input.lower():
-            return True
+        intent = condition.split("==")[1].strip().strip("'").lower()
+        return intent in user_input.lower()
     if condition == "user says goodbye":
-        return "bye" in user_input.lower() or "thank you" in user_input.lower()
+        return any(kw in user_input.lower() for kw in ["bye", "thank you", "goodbye"])
     if condition == "all booking details collected":
-        return "name" in data.get("entities", {}) and "date" in data.get("entities", {})
+        entities = data.get("entities", {})
+        required = ["name", "date", "time", "number_of_guests", "city"]
+        return all(key in entities and entities[key] for key in required)
+    if condition == "missing details":
+        return not evaluate_condition("all booking details collected", user_input, data)
+    if condition == "booking ID and updates provided":
+        entities = data.get("entities", {})
+        return "booking_id" in entities and any(k in entities for k in ["date", "time", "number_of_guests"])
+    if condition == "missing booking ID":
+        entities = data.get("entities", {})
+        return "booking_id" not in entities
     return False
+
+@app.get("/check-api-key")
+def check_api_key():
+    return {"api_key_loaded": bool(RETELL_AI_API_KEY)}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    print("⚙️  Starting FastAPI server...")
+    uvicorn.run("conversational_flow:app", host="0.0.0.0", port=8001, reload=True)
