@@ -18,7 +18,7 @@ origins = [
     "http://localhost",
     "http://localhost:8000",
     "http://localhost:8001",
-    "https://barbeque-nation-chatbot.vercel.app",  # Add Vercel frontend URL
+    "https://barbeque-nation-chatbot.vercel.app",
     "*"
 ]
 
@@ -30,7 +30,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Cities and areas available in the knowledge base (aligned with JSON files)
+# Cities and areas available in the knowledge base
 AVAILABLE_CITIES = {
     "delhi": ["Janakpuri", "Vasant Kunj"],
     "bangalore": ["Indiranagar", "JP Nagar", "Electronic City"]
@@ -60,13 +60,50 @@ async def handle_conversation(request: Request):
         ai_reply = None
         next_state = current_state
 
+        # Handle specific intents from option buttons
+        user_input_lower = user_input.lower()
+        if "menu" in user_input_lower:
+            async with httpx.AsyncClient(timeout=10) as client:
+                try:
+                    kb_response = await client.post(
+                        "https://barbeque-nation-knowledge-base.onrender.com/knowledge-base/query",
+                        json={"city": entities.get("city", "bangalore"), "question": "menu"}
+                    )
+                    kb_response.raise_for_status()
+                    information = kb_response.json().get("answer", "No menu information available.")
+                except Exception as e:
+                    print(f"Knowledge Base API error: {e}")
+                    information = "Sorry, I couldn't retrieve the menu at this time."
+            entities["information"] = information
+            prompt = f"Here is the menu information: {information}"
+            next_state = "inform"
+
+        elif "timings" in user_input_lower:
+            city = entities.get("city")
+            area = entities.get("area")
+            if not city or not area:
+                prompt = "I need to know which city and area you're interested in to provide the timings. Could you please tell me?"
+                next_state = "collect_city"
+            else:
+                async with httpx.AsyncClient(timeout=10) as client:
+                    try:
+                        kb_response = await client.post(
+                            "https://barbeque-nation-knowledge-base.onrender.com/knowledge-base/query",
+                            json={"city": city, "area": area, "question": "operating hours"}
+                        )
+                        kb_response.raise_for_status()
+                        information = kb_response.json().get("answer", "No timing information available.")
+                    except Exception as e:
+                        print(f"Knowledge Base API error: {e}")
+                        information = "Sorry, I couldn't retrieve the timings at this time."
+                entities["information"] = information
+                prompt = f"Here are the timings: {information}"
+                next_state = "inform"
+
         # Handle city collection and verification
-        if current_state == "collect_city":
+        elif current_state == "collect_city":
             city = None
             area = None
-            user_input_lower = user_input.lower()
-
-            # Check if user input matches a city or area
             for c, areas in AVAILABLE_CITIES.items():
                 if c in user_input_lower:
                     city = c
@@ -80,7 +117,7 @@ async def handle_conversation(request: Request):
             if city:
                 entities["city"] = city
                 if area and area in [a.lower() for a in AVAILABLE_CITIES[city]]:
-                    entities["area"] = area.title()  # Store area in proper case (e.g., "Indiranagar")
+                    entities["area"] = area.title()
                     prompt = f"You are looking for information about {area}, {city.title()}. Is that correct?"
                     next_state = "inform"
                 else:
@@ -94,12 +131,10 @@ async def handle_conversation(request: Request):
         elif current_state == "inform":
             city = entities.get("city")
             area = entities.get("area")
-
             if not city or not area:
                 prompt = "I need more information to proceed. Could you please tell me which city and area you're interested in?"
                 next_state = "collect_city"
             else:
-                # Fetch information from knowledge base
                 async with httpx.AsyncClient(timeout=10) as client:
                     try:
                         kb_response = await client.post(
@@ -111,10 +146,9 @@ async def handle_conversation(request: Request):
                     except Exception as e:
                         print(f"Knowledge Base API error: {e}")
                         information = "Sorry, I couldn't retrieve the information at this time."
-
                 entities["information"] = information
                 prompt = state_config["prompt"].format(information=information)
-                next_state = "inform"  # Stay in inform state for further questions
+                next_state = "inform"
 
         # Format prompt with entities if needed
         try:

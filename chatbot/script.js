@@ -1,64 +1,75 @@
-const chatWindow = document.getElementById('chat-window');
-const userInput = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
-const optionsContainer = document.getElementById('options');
+document.addEventListener("DOMContentLoaded", () => {
+    const chatWindow = document.getElementById("chat-window");
+    const userInput = document.getElementById("user-input");
+    const sendButton = document.getElementById("send-btn");
+    const optionButtons = document.querySelectorAll(".option-btn");
 
-function appendMessage(text, sender = 'bot') {
-  const msgDiv = document.createElement('div');
-  msgDiv.classList.add('message');
-  msgDiv.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
-  msgDiv.textContent = text;
-  chatWindow.appendChild(msgDiv);
-  chatWindow.scrollTop = chatWindow.scrollHeight;
-}
+    let currentState = "greeting";
+    let entities = {};
 
-// Predefined city list for simple recognition
-const cities = ['delhi', 'bangalore', 'mumbai', 'chennai'];
-
-async function getBotResponse(message) {
-  const lower = message.toLowerCase();
-
-  for (const city of cities) {
-    if (lower.includes(city)) {
-      return `Ah, I see you are asking about Barbeque Nation in ${city.charAt(0).toUpperCase() + city.slice(1)}. How can I assist you with your booking or enquiries there?`;
+    function appendMessage(sender, message) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${sender}-message`;
+        messageDiv.textContent = message;
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
     }
-  }
 
-  if (lower.includes('booking')) {
-    return "Sure! Please tell me the city, date, time, and number of guests you'd like to book for.";
-  } else if (lower.includes('menu')) {
-    return "Here’s our menu highlights: Paneer Tikka, Chicken Seekh Kebab, Barbeque Platter. Would you like to book a table?";
-  } else if (lower.includes('timing') || lower.includes('hours')) {
-    return "We are open daily from 12 PM to 11 PM.";
-  } else if (lower.includes('update')) {
-    return "Please provide your booking ID and the details you'd like to update.";
-  } else if (lower.includes('cancel')) {
-    return "Please share your booking ID to cancel your reservation.";
-  } else if (lower.includes('hello') || lower.includes('hi')) {
-    return "Hello! Welcome to Barbeque Nation. How may I assist you today?";
-  } else {
-    return "I'm sorry, I didn't quite catch that. Could you please rephrase or choose one of the options below?";
-  }
-}
+    async function sendMessage(userMessage) {
+        if (!userMessage) return;
 
-// On clicking any quick option button
-optionsContainer.addEventListener('click', async (e) => {
-  if (e.target.classList.contains('option-btn')) {
-    const text = e.target.getAttribute('data-msg');
-    appendMessage(text, 'user');
-    const reply = await getBotResponse(text);
-    appendMessage(reply, 'bot');
-  }
-});
+        appendMessage("user", userMessage);
+        userInput.value = "";
 
-// On sending custom typed message
-document.getElementById('input-area').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const text = userInput.value.trim();
-  if (!text) return;
+        try {
+            const response = await fetch("https://barbeque-nation-conversational-flow1.onrender.com/conversational-flow", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_input: userMessage,
+                    current_state: currentState,
+                    entities: entities
+                })
+            });
 
-  appendMessage(text, 'user');
-  userInput.value = '';
-  const reply = await getBotResponse(text);
-  appendMessage(reply, 'bot');
+            const data = await response.json();
+            if (data.error) {
+                appendMessage("bot", `Error: ${data.error}`);
+                return;
+            }
+
+            currentState = data.next_state;
+            entities = data.entities || {};
+            appendMessage("bot", data.response);
+        } catch (error) {
+            appendMessage("bot", "Sorry, something went wrong. Please try again.");
+            console.error("Error:", error);
+        }
+    }
+
+    // Handle text input and send button
+    sendButton.addEventListener("click", (e) => {
+        e.preventDefault(); // Prevent form submission
+        const userMessage = userInput.value.trim();
+        if (userMessage) sendMessage(userMessage);
+    });
+
+    userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault(); // Prevent form submission
+            const userMessage = userInput.value.trim();
+            if (userMessage) sendMessage(userMessage);
+        }
+    });
+
+    // Handle option buttons
+    optionButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const userMessage = button.getAttribute("data-msg");
+            sendMessage(userMessage);
+        });
+    });
+
+    // Initialize conversation
+    appendMessage("bot", "Hello! Welcome to Barbeque Nation. How can I assist you today?");
 });
